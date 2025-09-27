@@ -8,6 +8,7 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
   const [todoInput, setTodoInput] = useState("");
   const [todoList, setTodoList] = useState<TTask[]>([]);
   const [doneList, setDoneList] = useState<TTask[]>([]);
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   return (
     <TaskContext.Provider
@@ -15,9 +16,11 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
         todoInput,
         todoList,
         doneList,
+        isDarkMode,
         setTodoInput,
         setTodoList,
         setDoneList,
+        setIsDarkMode,
       }}
     >
       {children}

@@ -6,9 +6,11 @@ interface TaskContextType {
   todoInput: string;
   todoList: TTask[];
   doneList: TTask[];
+  isDarkMode?: boolean;
   setTodoInput: React.Dispatch<React.SetStateAction<string>>;
   setTodoList: React.Dispatch<React.SetStateAction<TTask[]>>;
   setDoneList: React.Dispatch<React.SetStateAction<TTask[]>>;
+  setIsDarkMode?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 // Context 생성 (초기값은 undefined로 설정)
