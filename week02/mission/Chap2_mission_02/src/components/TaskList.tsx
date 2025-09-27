@@ -1,5 +1,6 @@
 import type { TTask } from "../types/task";
 import { useTask } from "../hooks/useTask";
+import { clsx } from "clsx";
 
 type TaskListProps = {
   title: string;
@@ -7,7 +8,7 @@ type TaskListProps = {
 };
 
 export const TaskList = ({ title, isDone }: TaskListProps) => {
-  const { todoList, doneList, setTodoList, setDoneList } = useTask();
+  const { todoList, doneList, isDarkMode, setTodoList, setDoneList } = useTask();
   const list = isDone ? doneList : todoList;
 
   // 할 일 상태 변경 (완료로 이동)
@@ -27,7 +28,10 @@ export const TaskList = ({ title, isDone }: TaskListProps) => {
   const createTaskElement = (task: TTask, isDone: boolean): React.ReactNode => {
     return (
       <li key={task.id} 
-      className="flex justify-between items-center p-2 border-b border-gray-300 bg-gray-100 rounded-md mb-1 w-full">
+      className={clsx("flex justify-between items-center p-2 border-b border-gray-300 bg-gray-100 text-black rounded-md mb-1 w-full",
+        isDarkMode ? " border-gray-600" : " border-gray-300"
+      )}
+        >
         {task.text}
         <div
           className={`px-2 py-1 rounded-md text-xs text-white transition-colors duration-300  ${
