@@ -1,5 +1,4 @@
 import type { TTask } from "../types/task";
-import "../App.css";
 import { useTask } from "../hooks/useTask";
 
 type TaskListProps = {
@@ -27,11 +26,13 @@ export const TaskList = ({ title, isDone }: TaskListProps) => {
   // 할 일 아이템 생성 함수
   const createTaskElement = (task: TTask, isDone: boolean): React.ReactNode => {
     return (
-      <li key={task.id} className="render-container__item">
+      <li key={task.id} 
+      className="flex justify-between items-center p-2 border-b border-gray-300 bg-gray-100 rounded-md mb-1 w-full">
         {task.text}
-        <button
-          className="render-container__item-button"
-          style={{ backgroundColor: isDone ? "#dc3545" : "#28a745" }}
+        <div
+          className={`px-2 py-1 rounded-md text-xs text-white transition-colors duration-300  ${
+            isDone ? "bg-red-400 hover:bg-red-600 cursor-pointer" : "bg-green-400 hover:bg-green-600 cursor-pointer"
+          }`}
           onClick={() => {
             if (isDone) {
               deleteTask(task);
@@ -41,16 +42,16 @@ export const TaskList = ({ title, isDone }: TaskListProps) => {
           }}
         >
           {isDone ? "삭제" : "완료"}
-        </button>
+        </div>
       </li>
     );
   };
 
   return (
     <div>
-      <div className="render-container__section">
-        <h2 className="render-container__title">{title}</h2>
-        <ul id="todo-list" className="render-container__list">
+      <div className="w-[150px] text-left">
+        <h2 className="text-lg mb-2 text-center">{title}</h2>
+        <ul id="todo-list" className="list-none p-0 m-0">
           {list.map((task) => createTaskElement(task, isDone))}
         </ul>
       </div>
