@@ -1,8 +1,4 @@
 export type Cast = {
-    adult: boolean;
-    gender: number;
-    id: number;
-    known_for_department: string;
     name: string;
     original_name: string;
     profile_path: string;
@@ -10,10 +6,6 @@ export type Cast = {
 };
 
 export type Crew = {
-    adult: boolean;
-    gender: number;
-    id: number;
-    known_for_department: string;
     name: string;
     original_name: string;
     profile_path: string;
