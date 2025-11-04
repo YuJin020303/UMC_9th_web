@@ -2,7 +2,7 @@ import { NavLink } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
 import { getMyInfo } from "../apis/auth";
 import type { ResponseMyInfoDto } from "../types/auth";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../hooks/useAuth";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(true);

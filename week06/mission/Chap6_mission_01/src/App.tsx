@@ -11,7 +11,7 @@ import HomeLayout from "./layout/HomeLayout";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import MyPage from "./pages/MyPage";
-import { AuthProvider } from "./context/AuthContext";
+import { AuthProvider } from "./context/AuthProvider";
 import ProtectedLayout from "./layout/ProtectedLayout";
 import GoogleLoginRedirectPage from "./pages/GoogleLoginRedirectPage";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -19,7 +19,7 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { LpDetailPage } from "./pages/LpDetailPage";
 
 // publicRoutes: 인증없이 접근 가능한 라우트
-const publicRoutes: RouteObject = [
+const publicRoutes: RouteObject[] = [
   {
     path: "/",
     element: <HomeLayout />,
@@ -34,7 +34,7 @@ const publicRoutes: RouteObject = [
 ];
 
 // privateRoutes: 인증 후에 접근 가능한 라우트
-const privateRoutes: RouteObject = [
+const privateRoutes: RouteObject[] = [
   {
     path: "/",
     element: <ProtectedLayout />,

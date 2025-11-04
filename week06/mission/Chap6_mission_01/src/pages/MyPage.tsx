@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { getMyInfo } from "../apis/auth";
 import type { ResponseMyInfoDto } from "../types/auth";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../hooks/useAuth";
 
 const MyPage = () => {
   const { logout } = useAuth();
