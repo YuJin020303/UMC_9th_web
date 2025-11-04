@@ -8,7 +8,7 @@ interface CustomInternalAxiosRequestConfig extends InternalAxiosRequestConfig {
 }
 
 // 전역 변수로 refresh 요청의 Promise를 저장해서 중복 요청을 방지
-let refreshPromise:Promise<string | null> = null;
+let refreshPromise:Promise<string | null> | null  = null;
 
 export const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_SERVER_API_URL,
@@ -17,7 +17,7 @@ export const axiosInstance = axios.create({
 // 요청 인터셉터 설정: 모든 요청 전에 accessToken을 헤더에 추가
 axiosInstance.interceptors.request.use((config) => {
   const {getItem} = useLocalStorage(LOCAL_STORAGE_KEY.accessToken);
-  const token = getItem(); // 로컬 스토리지에서 토큰 가져오기
+  const token = getItem(); // 로컬 스토리지에서 액세스 토큰 가져오기
 
   // accessToken이 존재하면 authorization 헤더에 bearer 토큰으로 추가
   if(token){
@@ -81,7 +81,7 @@ axiosInstance.interceptors.response.use(
             // 새로운 accessToken 반환
             return data.data.accessToken;
         })()
-        .catch(error => {
+        .catch( () => {
           const {removeItem: removeAccessToken} = useLocalStorage(LOCAL_STORAGE_KEY.accessToken);
           const {removeItem: removeRefreshToken} = useLocalStorage(LOCAL_STORAGE_KEY.refreshToken);
           removeAccessToken();
@@ -97,9 +97,8 @@ axiosInstance.interceptors.response.use(
       originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
 
       return axiosInstance.request(originalRequest);
-    })
-    
-    return Promise.reject(error);
+    });
   }
-}
+  return Promise.reject(error);
+  },
 );
