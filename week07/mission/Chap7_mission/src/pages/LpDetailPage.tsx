@@ -1,61 +1,138 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
+import { useState, useEffect, type ChangeEvent } from "react";
 import useGetLpDetail from "../hooks/queries/useGetLpDetail";
+import useGetMyInfo from "../hooks/queries/useGetMyInfo";
 import { CommentList } from "../components/LpComment/CommentList";
 import { MusicBtn } from "../components/LpDetail/MusicBtn";
-import useGetMyInfo from "../hooks/queries/useGetMyInfo";
-import type { Likes } from "../types/lp";
 import usePostLike from "../hooks/mutations/usePostLike";
 import useDeleteLike from "../hooks/mutations/useDeleteLike";
+import useDeleteLp from "../hooks/mutations/useDeleteLp";
+import usePatchLp from "../hooks/mutations/usePatchLp";
+import type { Likes } from "../types/lp";
 
 export const LpDetailPage = () => {
   const { lpid } = useParams<{ lpid: string }>();
+  const navigate = useNavigate();
 
   const { data: lp, isPending, isError } = useGetLpDetail(lpid);
   const { data: me } = useGetMyInfo();
 
+  const [isEditing, setIsEditing] = useState(false);
+  const [editTitle, setEditTitle] = useState("");
+  const [editContent, setEditContent] = useState("");
+  const [editTags, setEditTags] = useState<string[]>([]);
+  const [tagInput, setTagInput] = useState("");
+  const [editThumbnail, setEditThumbnail] = useState<string>("");
+
   const isLiked = lp?.likes
     .map((like: Likes) => like.userId)
     .includes(me?.id as number);
+  const isAuthor = lp?.authorId == me?.id;
 
   const { mutate: likeMutate } = usePostLike();
   const { mutate: disLikeMutate } = useDeleteLike();
+  const { mutate: deleteMutate } = useDeleteLp();
+  const { mutate: patchMutate } = usePatchLp();
 
-  const handleLikeLp = () => {
-    likeMutate(lpid);
+  // lp 데이터 받아오면 수정용 상태 초기화
+  useEffect(() => {
+    if (lp) {
+      setEditTitle(lp.title);
+      setEditContent(lp.content);
+      setEditTags(lp.tags.map((t) => t.name));
+      setEditThumbnail(lp.thumbnail);
+    }
+  }, [lp]);
+
+  const handleLikeLp = () => likeMutate(lpid);
+  const handleDisLikeLp = () => disLikeMutate(lpid);
+  const handleDeleteLp = () => {
+    if (!lpid) return;
+    if (confirm("정말 이 LP를 삭제하시겠습니까?")) {
+      deleteMutate({ lpId: lpid }, { onSuccess: () => navigate("/") });
+    }
   };
 
-  const handleDisLikeLp = () => {
-    disLikeMutate(lpid);
+  const handleEditClick = () => setIsEditing(true);
+
+  const handleAddTag = () => {
+    const tag = tagInput.trim();
+    if (!tag || editTags.includes(tag)) return;
+    setEditTags((prev) => [...prev, tag]);
+    setTagInput("");
   };
 
-  if (isPending) {
-    return <div className="text-white text-3xl">Loading...</div>;
-  }
+  const handleRemoveTag = (tag: string) =>
+    setEditTags((prev) => prev.filter((t) => t !== tag));
 
-  if (isError) {
-    return <div className="text-white text-3xl">Error</div>;
-  }
+  const handleThumbnailChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) setEditThumbnail(URL.createObjectURL(file));
+  };
+
+  const handleSave = () => {
+    if (!lpid) return;
+    patchMutate(
+      {
+        lpId: lpid,
+        body: {
+          title: editTitle,
+          content: editContent,
+          thumbnail: editThumbnail,
+          tags: editTags,
+          published: true,
+        },
+      },
+      { onSuccess: () => setIsEditing(false) }
+    );
+  };
+
+  if (isPending) return <div className="text-white text-3xl">Loading...</div>;
+  if (isError) return <div className="text-white text-3xl">Error</div>;
 
   return (
     <div className="bg-black min-h-screen p-10">
       <div className="bg-neutral-200 p-10 my-20 mx-10 flex flex-col gap-5 rounded-md">
         <div className="flex gap-5 justify-center items-start">
-          <div className="bg-white p-8 rounded-lg shadow-md w-80">
-            {/* Album Cover */}
-            <img
-              src={lp.thumbnail}
-              alt={lp.title}
-              className="w-64 h-64 mx-auto rounded-lg mb-4 shadow-lg shadow-teal-50"
-            />
+          {/* 앨범 커버 */}
+          <div className="bg-white p-8 rounded-lg shadow-md w-80 flex flex-col items-center">
+            {isEditing ? (
+              <div className="flex-col">
+                <div className="flex justify-center mb-3">
+                  <img
+                    src={editThumbnail}
+                    alt="Preview"
+                    className="w-40 h-40 object-cover rounded-full border border-gray-100"
+                  />
+                </div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleThumbnailChange}
+                  className="w-full text-sm text-gray-300 file:mr-4 file:py-2 file:px-4 
+                       file:rounded-md file:border-0 file:text-sm file:font-semibold 
+                       file:bg-blue-600 file:text-white hover:file:bg-blue-700"
+                />
+              </div>
+            ) : (
+              <img
+                src={lp.thumbnail}
+                alt={lp.title}
+                className="w-64 h-64 mx-auto rounded-lg mb-4 shadow-lg shadow-teal-50"
+              />
+            )}
+
             <h2 className="text-xl font-semibold text-center">{lp.title}</h2>
+
             <p className="text-gray-600 text-sm text-center">
               {lp.author?.name}
             </p>
-            <MusicBtn></MusicBtn>
+            <MusicBtn />
           </div>
 
-          <div className="flex-1 p-5 ">
-            {/* LP 저자 */}
+          {/* 앨범 설명 */}
+          <div className="flex-1 p-5">
+            {/* 저자 */}
             <div className="flex justify-between items-center gap-5">
               <div className="flex items-center gap-5">
                 <img
@@ -67,52 +144,134 @@ export const LpDetailPage = () => {
                   {lp.author?.name}
                 </h2>
               </div>
-
               <h1>{lp.createdAt.slice(0, 10)}</h1>
             </div>
 
-            {/* Lp 제목 */}
-            <div className="flex justify-between">
-              <h1 className="font-semibold text-2xl">{lp.title}</h1>
-              {/* 수정, 삭제 이모티콘 */}
-              <div className="flex gap-2 pr-5">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={2}
-                  stroke="currentColor"
-                  className="size-5 text-neutral-600"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125"
-                  />
-                </svg>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={2}
-                  stroke="currentColor"
-                  className="size-5 text-neutral-600"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
-                  />
-                </svg>
-              </div>
+            {/* LP 제목 & 수정, 삭제 */}
+            <div className="flex justify-between items-center mt-4">
+              {isEditing ? (
+                <input
+                  type="text"
+                  value={editTitle}
+                  onChange={(e) => setEditTitle(e.target.value)}
+                  className="border rounded border-neutral-400 px-2 py-1 flex-1 mr-2"
+                />
+              ) : (
+                <h1 className="font-semibold text-2xl">{lp.title}</h1>
+              )}
+
+              {isAuthor && !isEditing && (
+                <div className="flex gap-2">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={2}
+                    stroke="currentColor"
+                    className="size-5 text-neutral-600 cursor-pointer"
+                    onClick={handleEditClick}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125"
+                    />
+                  </svg>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={2}
+                    stroke="currentColor"
+                    className="size-5 text-neutral-600 cursor-pointer"
+                    onClick={handleDeleteLp}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
+                    />
+                  </svg>
+                </div>
+              )}
             </div>
 
-            {/* lp 설명 */}
-            <h1 className="p-3">{lp.content}</h1>
+            {/* LP 설명 */}
+            {isEditing ? (
+              <textarea
+                value={editContent}
+                onChange={(e) => setEditContent(e.target.value)}
+                className="w-full border border-neutral-400 rounded p-2 mt-2"
+              />
+            ) : (
+              <p className="p-3">{lp.content}</p>
+            )}
+
+            {/* Tags */}
+            <div className="flex flex-wrap gap-2 mt-2">
+              {isEditing ? (
+                <>
+                  <input
+                    type="text"
+                    value={tagInput}
+                    onChange={(e) => setTagInput(e.target.value)}
+                    placeholder="태그 추가"
+                    className="w-full border border-neutral-400 rounded px-2 py-1"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleAddTag();
+                      }
+                    }}
+                  />
+                  {editTags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="flex items-center gap-1 bg-blue-600 text-white px-2 py-1 rounded-full text-sm"
+                    >
+                      #{tag}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveTag(tag)}
+                      >
+                        ✕
+                      </button>
+                    </span>
+                  ))}
+                </>
+              ) : (
+                lp.tags.map((tag) => (
+                  <span
+                    key={tag.name}
+                    className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm"
+                  >
+                    # {tag.name}
+                  </span>
+                ))
+              )}
+            </div>
+
+            {/* 저장/취소 버튼 */}
+            {isEditing && (
+              <div className="flex justify-end gap-2 mt-4">
+                <button
+                  className="bg-blue-600 text-white px-4 py-2 rounded"
+                  onClick={handleSave}
+                >
+                  저장
+                </button>
+                <button
+                  className="bg-gray-600 text-white px-4 py-2 rounded"
+                  onClick={() => setIsEditing(false)}
+                >
+                  취소
+                </button>
+              </div>
+            )}
 
             {/* 좋아요 */}
             <div className="flex gap-3 justify-center mt-4">
-              <button onClick={isLiked ? handleDisLikeLp : handleLikeLp }>
+              <button onClick={isLiked ? handleDisLikeLp : handleLikeLp}>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
@@ -130,13 +289,13 @@ export const LpDetailPage = () => {
                   />
                 </svg>
               </button>
-
               <h1 className="font-bold">{lp.likes.length}</h1>
             </div>
           </div>
         </div>
 
-        <CommentList></CommentList>
+        {/* Comments */}
+        <CommentList />
       </div>
     </div>
   );

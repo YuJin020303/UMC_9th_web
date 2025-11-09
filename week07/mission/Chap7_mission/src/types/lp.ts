@@ -92,3 +92,14 @@ export type ResponseCreateLpDto = CommonResponse<{
 
 export type ResponsePatchLpCommentDto = CommonResponse<LpComment>;
 export type ResponseDeleteLpCommentDto = CommonResponse<{message: string;}>
+
+// LP 내용 수정 요청 DTO
+export type RequestPatchLpDto = {
+  title: string;
+  content: string;
+  thumbnail: string;
+  tags: string[]; // 문자열 배열로 전송
+  published: boolean;
+};
+
+export type ResponseDeleteLpDto = CommonResponse<{data: boolean;}>
