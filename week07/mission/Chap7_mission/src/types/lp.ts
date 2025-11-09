@@ -64,8 +64,6 @@ export type LpLike = {
     lpId: number
 }
 
-
-
 export type ResponseLpListDto = CursorBasedResponse<Lp[]>;
 export type ResponseLpDetailDto = CommonResponse<LpDetail>;
 export type ResponseLpCommentListDto = CursorBasedResponse<LpComment[]>;
@@ -91,3 +89,6 @@ export type ResponseCreateLpDto = CommonResponse<{
   createdAt: string;
   updatedAt: string;
 }>;
+
+export type ResponsePatchLpCommentDto = CommonResponse<LpComment>;
+export type ResponseDeleteLpCommentDto = CommonResponse<{message: string;}>

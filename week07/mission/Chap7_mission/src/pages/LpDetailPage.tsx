@@ -17,8 +17,6 @@ export const LpDetailPage = () => {
     .map((like: Likes) => like.userId)
     .includes(me?.id as number);
 
-    console.log(isLiked)
-
   const { mutate: likeMutate } = usePostLike();
   const { mutate: disLikeMutate } = useDeleteLike();
 
