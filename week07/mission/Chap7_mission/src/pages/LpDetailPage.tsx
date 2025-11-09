@@ -2,11 +2,33 @@ import { useParams } from "react-router-dom";
 import useGetLpDetail from "../hooks/queries/useGetLpDetail";
 import { CommentList } from "../components/LpComment/CommentList";
 import { MusicBtn } from "../components/LpDetail/MusicBtn";
+import useGetMyInfo from "../hooks/queries/useGetMyInfo";
+import type { Likes } from "../types/lp";
+import usePostLike from "../hooks/mutations/usePostLike";
+import useDeleteLike from "../hooks/mutations/useDeleteLike";
 
 export const LpDetailPage = () => {
   const { lpid } = useParams<{ lpid: string }>();
 
-  const { data, isPending, isError } = useGetLpDetail(lpid);
+  const { data: lp, isPending, isError } = useGetLpDetail(lpid);
+  const { data: me } = useGetMyInfo();
+
+  const isLiked = lp?.likes
+    .map((like: Likes) => like.userId)
+    .includes(me?.id as number);
+
+    console.log(isLiked)
+
+  const { mutate: likeMutate } = usePostLike();
+  const { mutate: disLikeMutate } = useDeleteLike();
+
+  const handleLikeLp = () => {
+    likeMutate(lpid);
+  };
+
+  const handleDisLikeLp = () => {
+    disLikeMutate(lpid);
+  };
 
   if (isPending) {
     return <div className="text-white text-3xl">Loading...</div>;
@@ -23,37 +45,38 @@ export const LpDetailPage = () => {
           <div className="bg-white p-8 rounded-lg shadow-md w-80">
             {/* Album Cover */}
             <img
-              src={data.thumbnail}
-              alt={data.title}
+              src={lp.thumbnail}
+              alt={lp.title}
               className="w-64 h-64 mx-auto rounded-lg mb-4 shadow-lg shadow-teal-50"
             />
-            <h2 className="text-xl font-semibold text-center">{data.title}</h2>
+            <h2 className="text-xl font-semibold text-center">{lp.title}</h2>
             <p className="text-gray-600 text-sm text-center">
-              {data.author?.name}
+              {lp.author?.name}
             </p>
             <MusicBtn></MusicBtn>
           </div>
 
           <div className="flex-1 p-5 ">
+            {/* LP 저자 */}
             <div className="flex justify-between items-center gap-5">
               <div className="flex items-center gap-5">
                 <img
-                  src={data.author?.avatar}
-                  alt={data.author?.name}
+                  src={lp.author?.avatar}
+                  alt={lp.author?.name}
                   className="size-20 mx-auto rounded-full mb-4 shadow-lg shadow-teal-50"
                 />
                 <h2 className="text-xl font-semibold text-center">
-                  {data.author?.name}
+                  {lp.author?.name}
                 </h2>
               </div>
 
-              <h1>{data.createdAt.slice(0, 10)}</h1>
+              <h1>{lp.createdAt.slice(0, 10)}</h1>
             </div>
 
-            {/* Lp 설명 */}
+            {/* Lp 제목 */}
             <div className="flex justify-between">
-              <h1 className="font-semibold text-2xl">{data.title}</h1>
-              {/* 이모티콘 */}
+              <h1 className="font-semibold text-2xl">{lp.title}</h1>
+              {/* 수정, 삭제 이모티콘 */}
               <div className="flex gap-2 pr-5">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -85,26 +108,36 @@ export const LpDetailPage = () => {
                 </svg>
               </div>
             </div>
-            <h1 className="p-3">{data.content}</h1>
+
+            {/* lp 설명 */}
+            <h1 className="p-3">{lp.content}</h1>
+
+            {/* 좋아요 */}
             <div className="flex gap-3 justify-center mt-4">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={2}
-                stroke="currentColor"
-                className="size-6 text-blue-800"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M6.633 10.25c.806 0 1.533-.446 2.031-1.08a9.041 9.041 0 0 1 2.861-2.4c.723-.384 1.35-.956 1.653-1.715a4.498 4.498 0 0 0 .322-1.672V2.75a.75.75 0 0 1 .75-.75 2.25 2.25 0 0 1 2.25 2.25c0 1.152-.26 2.243-.723 3.218-.266.558.107 1.282.725 1.282m0 0h3.126c1.026 0 1.945.694 2.054 1.715.045.422.068.85.068 1.285a11.95 11.95 0 0 1-2.649 7.521c-.388.482-.987.729-1.605.729H13.48c-.483 0-.964-.078-1.423-.23l-3.114-1.04a4.501 4.501 0 0 0-1.423-.23H5.904m10.598-9.75H14.25M5.904 18.5c.083.205.173.405.27.602.197.4-.078.898-.523.898h-.908c-.889 0-1.713-.518-1.972-1.368a12 12 0 0 1-.521-3.507c0-1.553.295-3.036.831-4.398C3.387 9.953 4.167 9.5 5 9.5h1.053c.472 0 .745.556.5.96a8.958 8.958 0 0 0-1.302 4.665c0 1.194.232 2.333.654 3.375Z"
-                />
-              </svg>
-              <h1 className="font-bold">{data.likes.length}</h1>
+              <button onClick={isLiked ? handleDisLikeLp : handleLikeLp }>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={2}
+                  stroke="currentColor"
+                  className={`size-6 ${
+                    isLiked ? "text-blue-700" : "text-gray-400"
+                  }`}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M6.633 10.25c.806 0 1.533-.446 2.031-1.08a9.041 9.041 0 0 1 2.861-2.4c.723-.384 1.35-.956 1.653-1.715a4.498 4.498 0 0 0 .322-1.672V2.75a.75.75 0 0 1 .75-.75 2.25 2.25 0 0 1 2.25 2.25c0 1.152-.26 2.243-.723 3.218-.266.558.107 1.282.725 1.282m0 0h3.126c1.026 0 1.945.694 2.054 1.715.045.422.068.85.068 1.285a11.95 11.95 0 0 1-2.649 7.521c-.388.482-.987.729-1.605.729H13.48c-.483 0-.964-.078-1.423-.23l-3.114-1.04a4.501 4.501 0 0 0-1.423-.23H5.904m10.598-9.75H14.25M5.904 18.5c.083.205.173.405.27.602.197.4-.078.898-.523.898h-.908c-.889 0-1.713-.518-1.972-1.368a12 12 0 0 1-.521-3.507c0-1.553.295-3.036.831-4.398C3.387 9.953 4.167 9.5 5 9.5h1.053c.472 0 .745.556.5.96a8.958 8.958 0 0 0-1.302 4.665c0 1.194.232 2.333.654 3.375Z"
+                  />
+                </svg>
+              </button>
+
+              <h1 className="font-bold">{lp.likes.length}</h1>
             </div>
           </div>
         </div>
+
         <CommentList></CommentList>
       </div>
     </div>

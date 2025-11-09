@@ -58,6 +58,36 @@ export type LpComment = {
     author?: author
 }
 
+export type LpLike = {
+    id:number
+    userId: number
+    lpId: number
+}
+
+
+
 export type ResponseLpListDto = CursorBasedResponse<Lp[]>;
 export type ResponseLpDetailDto = CommonResponse<LpDetail>;
 export type ResponseLpCommentListDto = CursorBasedResponse<LpComment[]>;
+export type ResponseLikeLpDto = CommonResponse<LpLike>;
+
+// LP 생성 요청 DTO
+export type RequestCreateLpDto = {
+  title: string;
+  content: string;
+  thumbnail: string;
+  tags: string[]; // 문자열 배열로 전송
+  published: boolean;
+};
+
+// LP 생성 성공 응답
+export type ResponseCreateLpDto = CommonResponse<{
+  id: number;
+  title: string;
+  content: string;
+  thumbnail: string;
+  published: boolean;
+  authorId: number;
+  createdAt: string;
+  updatedAt: string;
+}>;
