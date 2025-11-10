@@ -25,3 +25,7 @@ export const patchMyInfo = async (body: RequestMyInfoDto):Promise<ResponseMyInfo
   const {data} = await axiosInstance.patch('/v1/users', body);
   return data;
 };
+
+export const deleteUser = async () => {
+  await axiosInstance.delete("/v1/users");
+}
