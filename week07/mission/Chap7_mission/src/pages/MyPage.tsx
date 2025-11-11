@@ -23,16 +23,8 @@ const MyPage = () => {
 
   const handleSave = async () => {
     const avatarUrl = avatar ? URL.createObjectURL(avatar) : null;
-
-    patchMyInfo(
-      { name, bio: bio || null, avatar: avatarUrl || null },
-      {
-        onSuccess: () => {
-          alert("프로필이 수정되었습니다!");
-          setIsEditing(false);
-        },
-      }
-    );
+    setIsEditing(false);
+    patchMyInfo({ name, bio: bio || null, avatar: avatarUrl || null });
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
