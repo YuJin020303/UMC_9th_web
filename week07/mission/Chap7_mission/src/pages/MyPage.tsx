@@ -1,10 +1,10 @@
-import { useAuth } from "../hooks/useAuth";
 import useGetMyInfo from "../hooks/queries/useGetMyInfo";
 import usePatchMyInfo from "../hooks/mutations/usePatchMyInfo";
 import { useState } from "react";
+import useLogout from "../hooks/mutations/useLogout";
 
 const MyPage = () => {
-  const { logout } = useAuth();
+  const { logout } = useLogout();
   const { data: me } = useGetMyInfo();
   const { mutate: patchMyInfo } = usePatchMyInfo();
 

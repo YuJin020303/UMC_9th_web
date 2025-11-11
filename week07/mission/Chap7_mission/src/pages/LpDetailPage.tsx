@@ -14,7 +14,7 @@ export const LpDetailPage = () => {
   const { lpid } = useParams<{ lpid: string }>();
   const navigate = useNavigate();
 
-  const { data: lp, isPending, isError } = useGetLpDetail(lpid);
+  const { data: lp, isPending, isError } = useGetLpDetail({lpId: Number(lpid)});
   const { data: me } = useGetMyInfo();
 
   const [isEditing, setIsEditing] = useState(false);
@@ -44,8 +44,8 @@ export const LpDetailPage = () => {
     }
   }, [lp]);
 
-  const handleLikeLp = () => likeMutate(lpid);
-  const handleDisLikeLp = () => disLikeMutate(lpid);
+  const handleLikeLp = () => likeMutate({lpId: Number(lpid)});
+  const handleDisLikeLp = () => disLikeMutate({lpId: Number(lpid)});
   const handleDeleteLp = () => {
     if (!lpid) return;
     if (confirm("정말 이 LP를 삭제하시겠습니까?")) {

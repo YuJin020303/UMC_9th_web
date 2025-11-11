@@ -69,6 +69,14 @@ export type ResponseLpDetailDto = CommonResponse<LpDetail>;
 export type ResponseLpCommentListDto = CursorBasedResponse<LpComment[]>;
 export type ResponseLikeLpDto = CommonResponse<LpLike>;
 
+export type RequestLpDto = {
+  lpId: number;
+  commentId?: number;
+  body?: {
+    content: string;
+  };
+}
+
 // LP 생성 요청 DTO
 export type RequestCreateLpDto = {
   title: string;

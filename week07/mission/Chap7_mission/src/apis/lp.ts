@@ -2,7 +2,7 @@ import type { PaginationDto, CommentPaginationDto } from "../types/common";
 import { axiosInstance } from "./axios";
 import type { ResponseLikeLpDto, ResponseLpCommentListDto, ResponseLpDetailDto, ResponseLpListDto, 
   RequestCreateLpDto, ResponseCreateLpDto, LpComment, ResponsePatchLpCommentDto, ResponseDeleteLpCommentDto,
-  RequestPatchLpDto, ResponseDeleteLpDto
+  RequestPatchLpDto, ResponseDeleteLpDto, RequestLpDto
 } from "../types/lp";
 
 export const getLpList = async (paginationDto: PaginationDto):Promise<ResponseLpListDto> => {
@@ -12,7 +12,7 @@ export const getLpList = async (paginationDto: PaginationDto):Promise<ResponseLp
   return data;
 }
 
-export const getLpDetail = async (lpId: string | undefined):Promise<ResponseLpDetailDto> => {
+export const getLpDetail = async ({lpId}: RequestLpDto):Promise<ResponseLpDetailDto> => {
   const { data } = await axiosInstance.get(`/v1/lps/${lpId}`);
   return data;
 }
@@ -24,12 +24,12 @@ export const getLpComments = async (commentPaginationDto: CommentPaginationDto):
   return data;
 }
 
-export const postLike = async (lpId: string | undefined):Promise<ResponseLikeLpDto> => {
+export const postLike = async ({lpId}: RequestLpDto):Promise<ResponseLikeLpDto> => {
   const { data } = await axiosInstance.post(`/v1/lps/${lpId}/likes`);
   return data;
 }
 
-export const deleteLike = async (lpId: string | undefined):Promise<ResponseLikeLpDto> => {
+export const deleteLike = async ({lpId}: RequestLpDto):Promise<ResponseLikeLpDto> => {
   const { data } = await axiosInstance.delete(`/v1/lps/${lpId}/likes`);
   return data;
 }
