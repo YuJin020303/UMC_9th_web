@@ -20,48 +20,46 @@ import { QUERY_KEY } from "../../constants/key";
 //   avatar: string | null;
 // }
 
-export default function  usePatchMyInfo() {
-    const qc = useQueryClient();
+export default function usePatchMyInfo() {
+  const qc = useQueryClient();
 
-    return useMutation({
-        mutationFn: ({ name, bio, avatar }: RequestMyInfoDto) => patchMyInfo({ name, bio, avatar }),
-        // onSuccess: () => {
-        //     qc.invalidateQueries({ 
-        //         queryKey: [QUERY_KEY.myInfo], 
-        //     })
-        // },
-        // 
-        onMutate: async(patchInfo:RequestMyInfoDto) => {
-            await qc.cancelQueries({
-                queryKey: [QUERY_KEY.myInfo],
-            });
-            
-            const preMyInfo = qc.getQueryData<ResponseMyInfoDto>([QUERY_KEY.myInfo]);
-            
-            const newMyInfoData = {
-                id: preMyInfo?.data.id,
-                name: patchInfo.name,
-                email: preMyInfo?.data.email,
-                bio: patchInfo.bio,
-                avatar: patchInfo.avatar,
-                createdAt: preMyInfo?.data.createdAt,
-                updatedAt: preMyInfo?.data.updatedAt,
-            };
-            
-            const newMyInfo = {...preMyInfo, data: newMyInfoData};
-            qc.setQueryData([QUERY_KEY.myInfo], newMyInfo);
-            
-            return {preMyInfo, newMyInfo};
-        },
-        onError: (err, newLp, context) => {
-            console.log(err, newLp);
-            qc.setQueryData([QUERY_KEY.myInfo], context?.preMyInfo);
-            alert("프로필 수정에 실패했습니다. 다시 시도해주세요.");
-        },
-    onSettled: async() => {
-        await qc.invalidateQueries({
-            queryKey:[QUERY_KEY.myInfo],
-            exact: true,
-        });
+  return useMutation({
+    mutationFn: patchMyInfo,
+
+    // 낙관적 업데이트
+    onMutate: async (updatedInfo: RequestMyInfoDto) => {
+      await qc.cancelQueries({ queryKey: [QUERY_KEY.myInfo] });
+
+      const prev = qc.getQueryData<ResponseMyInfoDto>([QUERY_KEY.myInfo]);
+      const prevData = prev?.data;
+
+      // 기존 데이터를 기반으로 새로운 값 생성
+      const next = prevData
+        ? {
+            ...prev,
+            data: {
+              ...prevData,
+              ...updatedInfo, // name, bio, avatar만 업데이트
+            },
+          }
+        : prev;
+
+      qc.setQueryData([QUERY_KEY.myInfo], next);
+
+      return { prev };
     },
-})}
+
+    // 실패 → 롤백
+    onError: (_err, _newInfo, ctx) => {
+      if (ctx?.prev) {
+        qc.setQueryData([QUERY_KEY.myInfo], ctx.prev);
+      }
+      alert("프로필 수정에 실패했습니다. 다시 시도해주세요.");
+    },
+
+    // 성공, 실패 상관없이 refetch
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: [QUERY_KEY.myInfo] });
+    },
+  });
+}
