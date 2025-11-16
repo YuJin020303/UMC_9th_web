@@ -6,11 +6,18 @@ import SortTabs from "../components/SortTabs";
 import AddBtn from "../components/AddBtn";
 import LpCard from "../components/LpCard/LpCard";
 import LpCardSkeletonList from "../components/LpCard/LpCardSkeletonList";
+import SearchBar from "../components/SearchBar";
+import useDebounce from "../hooks/queries/useDebounce";
 
 const HomePage = () => {
   const [sort, setSort] = useState<PAGINATION_ORDER>(PAGINATION_ORDER.desc);
+  const [search, setSearch] = useState("");
+  const debouncedValue = useDebounce(search, 500);
+  // 검색창에 입력한게 빈문자열인지
+  const isSearchEmpty = debouncedValue.trim().length === 0;
+
   const { data, isFetching, hasNextPage, fetchNextPage, isPending, isError } =
-    useGetInfiniteLpList(20, "", sort);
+    useGetInfiniteLpList(20, isSearchEmpty ? "" : debouncedValue, sort, { enabled: !isSearchEmpty || debouncedValue === "", });
   console.log("data:", data);
 
   const { ref, inView } = useInView({ threshold: 0 });
@@ -27,6 +34,7 @@ const HomePage = () => {
 
   return (
     <div className="bg-black p-5">
+      <SearchBar search={search} setSearch={setSearch}></SearchBar>
       {/* 버튼 */}
       <SortTabs setSort={setSort} />
       <AddBtn/>

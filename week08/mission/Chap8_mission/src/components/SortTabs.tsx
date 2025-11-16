@@ -19,7 +19,7 @@ const SortTabs= ({ setSort }: SortTabsProps) => {
   };
 
   return (
-    <div className="flex justify-center mt-15">
+    <div className="flex justify-center mt-5">
       <nav className="flex m-3 overflow-x-auto items-center p-1 space-x-1 rtl:space-x-reverse text-sm text-gray-600 bg-gray-500/5 rounded-xl dark:bg-gray-500/20">
         {tabs.map((tab) => (
           <button
