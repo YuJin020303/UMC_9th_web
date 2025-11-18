@@ -7,7 +7,7 @@ interface SearchProps {
 
 export default function SearchBar({ search, setSearch }: SearchProps) {
   return (
-    <div className="mt-20 flex justify-center items-center">
+    <div className="mt-10 flex justify-center items-center">
       <form className="w-full px-20">
         <div className="relative">
           <input
