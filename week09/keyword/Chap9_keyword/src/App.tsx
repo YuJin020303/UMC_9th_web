@@ -1,10 +1,15 @@
 import "./App.css";
-import { UseReducerPage } from "./UseReducerPage";
-import { UseReducerCompany } from "./UseReducerCompany";
+// import { UseReducerPage } from "./UseReducerPage";
+// import { UseReducerCompany } from "./UseReducerCompany";
+import { Counter } from "./components/Counter";
+import { RandomNumberGenerator } from "./components/RandomNumberGenerator";
 
 function App() {
   return (
-    <UseReducerPage></UseReducerPage>
+    <div className="flex-col items-center justify-center p-10 space-y-10">
+    <Counter />
+    <RandomNumberGenerator />
+    </div>
   );
 }
 
