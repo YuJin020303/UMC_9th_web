@@ -1,19 +1,18 @@
-import { useDispatch } from "../hooks/useCustomRedux";
-import { clearCart } from "../slices/cartSlice";
-import { closeModal } from "../slices/modalSlice";
+import { useCartActions } from "../hooks/useCartStore";
+import { useModalActions } from "../hooks/useModalStore";
 
 const DeleteModal = () => {
-  const dispatch = useDispatch();
+  const { clearCart } = useCartActions();
+  const { closeModal } = useModalActions();
 
   const handleClearCart = () => {
     // 수량 증가 액션 디스패치
-    dispatch(clearCart());
-    dispatch(closeModal());
+    clearCart();
+    closeModal();
   };
 
   const handleModalClose = () => {
-    // 모달 닫기 액션 디스패치
-    dispatch(closeModal());
+    closeModal();
   };
 
   return (

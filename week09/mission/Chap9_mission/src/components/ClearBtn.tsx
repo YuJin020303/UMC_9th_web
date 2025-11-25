@@ -1,16 +1,13 @@
-import { useDispatch } from "../hooks/useCustomRedux";
-import { useSelector } from "../hooks/useCustomRedux";
 import DeleteModal from "./DeleteModal";
-import { openModal } from "../slices/modalSlice";
+import { useModalActions } from "../hooks/useModalStore";
+import { useModalInfo } from "../hooks/useModalStore";
 
 export const ClearBtn = () => {
-  const { isOpen } = useSelector((state) => state.modal);
-
-  const dispatch = useDispatch();
+  const { isOpen } = useModalInfo();
+  const { openModal } = useModalActions();
 
   const handleModalOpen = () => {
-    // 모달 열기 액션 디스패치
-    dispatch(openModal());
+    openModal();
   };
 
   return (
