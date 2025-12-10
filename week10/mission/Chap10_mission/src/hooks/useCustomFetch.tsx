@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import type { AxiosRequestConfig } from "axios";
 
 function useCustomFetch<TResponse, TData>(
   url: string | null,
+  options: AxiosRequestConfig = {},
   selector: (response: TResponse) => TData,
-  deps: unknown[] = []
 ) {
   const [data, setData] = useState<TData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -18,10 +19,11 @@ function useCustomFetch<TResponse, TData>(
       setIsError(false);
       try {
         const response = await axios.get<TResponse>(url, {
-            headers: {
-              Authorization: `Bearer ${import.meta.env.VITE_TMDB_KEY}`,
-            },
-          });
+          ...options,
+          headers: {
+            Authorization: `Bearer ${import.meta.env.VITE_TMDB_KEY}`,
+          },
+        });
         setData(selector(response.data));
         setIsLoading(false);
       } catch (error) {
@@ -33,7 +35,7 @@ function useCustomFetch<TResponse, TData>(
     };
 
     fetchData();
-  }, deps);
+  }, [options, url]);
 
   return { data, isLoading, isError };
 }

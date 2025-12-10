@@ -1,7 +1,6 @@
 import type { ReactNode } from "react";
 import type { Movie } from "../types/movie";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 interface MovieCardProps {
   movie: Movie;
@@ -9,14 +8,13 @@ interface MovieCardProps {
 
 const MovieCard = ({ movie }: MovieCardProps): ReactNode => {
   const [isHovered, setIsHovered] = useState(false);
-  const navigate = useNavigate();
 
   return (
     <div
       className="relative hover:scale-105 transition-transform"
       onMouseEnter={(): void => setIsHovered(true)}
       onMouseLeave={(): void => setIsHovered(false)}
-      onClick={(): void | Promise<void> => navigate(`/movie/${movie.id}`)}
+      // onClick={(): void | Promise<void> => navigate(`/movie/${movie.id}`)}
     >
       <img
         src={`https://image.tmdb.org/t/p/w200${movie.poster_path}`}
