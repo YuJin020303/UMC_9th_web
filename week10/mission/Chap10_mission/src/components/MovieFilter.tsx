@@ -34,7 +34,7 @@ const MovieFilter = ({ onChange }: MovieFilterProps) => {
     <form
       onSubmit={handleSubmit}
       className="transform space-y-6 rounded-2xl border-gray-500 bg-white 
-    p-6 shadow-xl transition-all hover:shadow-2xl"
+    p-6 m-5 shadow-xl transition-all hover:shadow-2xl"
     >
       <div className="flex flex-wrap gap-6">
         <div className="min-w-[450px] flex-1">
